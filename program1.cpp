@@ -1,159 +1,134 @@
-#include<iostream>
+#include <iostream>
+#include <cmath>
 using namespace std;
 
-class Cqueue
+class Bank
 {
-    int *a;
-    int size, capacity;
-    int front, rear;
+    float balance;
+    float rate_of_interest;
 
 public:
-    Cqueue(int cap)
+    Bank(float initial_balance, float roi)
     {
-        capacity = cap;
-        a = new int[capacity];
-        size = 0;
-        front = rear = -1;
+        balance = initial_balance;
+        rate_of_interest = roi;
     }
 
-    bool isEmpty()
+    void deposit(float amount)
     {
-        return size <= 0;
-    }
-
-    bool isFull()
-    {
-        return size == capacity;
-    }
-
-    void enqueue(int data)
-    {
-        if (isFull())
+        if (amount <= 0)
         {
-            cout << "Queue is full! Cannot insert " << data << endl;
+            cout << "Deposit amount must be positive!" << endl;
             return;
         }
-        if (front == -1) front = 0;
-        rear = (rear + 1) % capacity;
-        a[rear] = data;
-        size++;
-        cout << data << " has been inserted into the queue." << endl;
+        balance += amount;
+        cout << "After depositing, total balance is: " << balance << endl;
     }
 
-    void dequeue()
+    void withdraw(float amount)
     {
-        if (isEmpty())
+        if (amount <= 0)
         {
-            cout << "The queue is empty! Cannot perform dequeue." << endl;
+            cout << "Withdrawal amount must be positive!" << endl;
             return;
         }
-        int del = front;
-        cout << a[del] << " has been deleted from the queue." << endl;
-        front = (front + 1) % capacity;
-        size--;
-        if (size == 0)
+        if (balance - amount < 0)
         {
-            front = rear = -1;
-        }
-    }
-
-    int getFront()
-    {
-        return isEmpty() ? -1 : a[front];
-    }
-
-    int getRear()
-    {
-        return isEmpty() ? -1 : a[rear];
-    }
-
-    void printQueue()
-    {
-        if (isEmpty())
-        {
-            cout << "The queue is empty!" << endl;
+            cout << "Insufficient balance for this withdrawal!" << endl;
             return;
         }
-        cout << "Queue elements: ";
-        for (int i = 0; i < size; i++)
+        balance -= amount;
+        cout << "After withdrawal, remaining balance is: " << balance << endl;
+    }
+
+    void calculateCompoundInterest(float time)
+    {
+        if (time <= 0)
         {
-            cout << a[(i + front) % capacity] << " ";
+            cout << "Time period must be positive!" << endl;
+            return;
         }
-        cout << endl;
+        float new_balance = balance * pow((1 + rate_of_interest / 100), time);
+        cout << "Balance after " << time << " years with compound interest: " << new_balance << endl;
     }
 
-    int getSize()
+    void displayBalance()
     {
-        return size;
+        cout << "Current balance: " << balance << endl;
     }
 
-    ~Cqueue()
+    void setInterestRate(float new_rate)
     {
-        delete[] a;
+        if (new_rate <= 0)
+        {
+            cout << "Interest rate must be positive!" << endl;
+            return;
+        }
+        rate_of_interest = new_rate;
+        cout << "Interest rate updated to: " << rate_of_interest << "%" << endl;
     }
+
+    ~Bank() {}
 };
 
 int main()
 {
-    int cap;
-    cout << "Enter the capacity of the queue: ";
-    cin >> cap;
-    Cqueue q(cap);
-    cout << "\nQueue Operations Menu: \n";
-    cout << "1. Enqueue\n";
-    cout << "2. Dequeue\n";
-    cout << "3. Check if Empty\n";
-    cout << "4. Check if Full\n";
-    cout << "5. Get Front Element\n";
-    cout << "6. Get Rear Element\n";
-    cout << "7. Print Queue\n";
-    cout << "8. Get Queue Size\n";
-    cout << "0. Exit\n";
+    float initial_balance, roi;
+    cout << "Enter initial balance and rate of interest: ";
+    cin >> initial_balance >> roi;
+
+    Bank bank_account(initial_balance, roi);
+
     int choice;
     do
     {
-       
+        cout << "\nBanking Operations Menu:\n";
+        cout << "1. Deposit\n";
+        cout << "2. Withdraw\n";
+        cout << "3. Calculate Compound Interest\n";
+        cout << "4. Display Current Balance\n";
+        cout << "5. Set Interest Rate\n";
+        cout << "6. Reset Balance\n";
+        cout << "0. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice)
         {
         case 1:
-            {
-                int data;
-                cout << "Enter the element to insert: ";
-                cin >> data;
-                q.enqueue(data);
-                break;
-            }
+        {
+            float amount;
+            cout << "Enter amount to deposit: ";
+            cin >> amount;
+            bank_account.deposit(amount);
+            break;
+        }
         case 2:
-            q.dequeue();
+        {
+            float amount;
+            cout << "Enter amount to withdraw: ";
+            cin >> amount;
+            bank_account.withdraw(amount);
             break;
+        }
         case 3:
-            cout << (q.isEmpty() ? "Queue is empty." : "Queue is not empty.") << endl;
+        {
+            float time;
+            cout << "Enter time (in years) to calculate compound interest: ";
+            cin >> time;
+            bank_account.calculateCompoundInterest(time);
             break;
+        }
         case 4:
-            cout << (q.isFull() ? "Queue is full." : "Queue is not full.") << endl;
-            break;
-        case 5:
-            cout << "Front element: " << q.getFront() << endl;
-            break;
-        case 6:
-            cout << "Rear element: " << q.getRear() << endl;
-            break;
-        case 7:
-            q.printQueue();
-            break;
-        case 8:
-            cout << "Current queue size: " << q.getSize() << endl;
+            bank_account.displayBalance();
             break;
         case 0:
-            cout << "Exiting the program..." << endl;
+            cout << "Exiting program...\n";
             break;
         default:
-            cout << "Invalid choice, please try again!" << endl;
+            cout << "Invalid choice! Please try again.\n";
+            break;
         }
-
     } while (choice != 0);
 
     return 0;
